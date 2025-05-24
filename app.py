@@ -62,15 +62,12 @@ def show_login_page():
         st.markdown("</div>", unsafe_allow_html=True)
         
         username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        
-        if st.button("Login", use_container_width=True):
-            if login(username, password):
-                st.success("Login berhasil!")
-                st.experimental_rerun()
-            else:
-                st.error("Username atau password salah!")
-        
+        password = st.text_input("Password", type="passw            if st.button("Login", use_container_width=True):
+                if login(username, password):
+                    st.success("Login berhasil!")
+                    st.rerun()
+                else:
+                    st.error("Username atau password salah!")
         st.markdown('<div class="login-footer">', unsafe_allow_html=True)
         st.markdown("© 2025 AI Suara Marketing Tracker")
         st.markdown("</div>", unsafe_allow_html=True)
@@ -103,7 +100,7 @@ def show_sidebar():
         
         if st.button("Logout", use_container_width=True):
             logout()
-            st.experimental_rerun()
+            st.rerun()
     
     return menu
 
@@ -294,7 +291,7 @@ def show_superadmin_dashboard():
 
 # Fungsi untuk menampilkan dashboard marketing
 def show_marketing_dashboard():
-    st.title("Dashboard Marketing")
+    st.title("DASHBOARD MARKETING")
     
     user = st.session_state.user
     username = user['username']
@@ -307,139 +304,6 @@ def show_marketing_dashboard():
     if not activities:
         st.info("Anda belum memiliki aktivitas pemasaran. Tambahkan aktivitas pemasaran terlebih dahulu.")
         return
-    
-    # Konversi ke DataFrame untuk analisis
-    activities_df = pd.DataFrame(activities)
-    
-    # Metrik utama
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Total Aktivitas", len(activities))
-    with col2:
-        st.metric("Total Prospek", activities_df['prospect_name'].nunique())
-    with col3:
-        if followups:
-            st.metric("Total Follow-up", len(followups))
-        else:
-            st.metric("Total Follow-up", 0)
-    
-    # Baris pertama grafik
-    st.subheader("Analisis Aktivitas Pemasaran")
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        # Distribusi status prospek
-        status_counts = activities_df['status'].value_counts().reset_index()
-        status_counts.columns = ['Status', 'Jumlah']
-        
-        # Mapping status untuk tampilan yang lebih baik
-        status_mapping = {
-            'baru': 'Baru',
-            'dalam_proses': 'Dalam Proses',
-            'berhasil': 'Berhasil',
-            'gagal': 'Gagal'
-        }
-        status_counts['Status'] = status_counts['Status'].map(lambda x: status_mapping.get(x, x))
-        
-        fig = px.pie(
-            status_counts, 
-            values='Jumlah', 
-            names='Status',
-            title='Distribusi Status Prospek',
-            color='Status',
-            color_discrete_map={
-                'Baru': '#3498db',
-                'Dalam Proses': '#f39c12',
-                'Berhasil': '#2ecc71',
-                'Gagal': '#e74c3c'
-            }
-        )
-        st.plotly_chart(fig, use_container_width=True)
-    
-    with col2:
-        # Aktivitas per lokasi
-        location_counts = activities_df['prospect_location'].value_counts().reset_index()
-        location_counts.columns = ['Lokasi', 'Jumlah']
-        
-        if not location_counts.empty:
-            fig = px.bar(
-                location_counts.head(10),
-                x='Lokasi',
-                y='Jumlah',
-                title='Lokasi Prospek',
-                color='Jumlah',
-                color_continuous_scale=px.colors.sequential.Plasma
-            )
-            st.plotly_chart(fig, use_container_width=True)
-    
-    # Daftar aktivitas terbaru
-    st.subheader("Aktivitas Pemasaran Terbaru")
-    
-    # Konversi created_at ke datetime dan urutkan
-    activities_df['created_at'] = pd.to_datetime(activities_df['created_at'])
-    activities_df = activities_df.sort_values('created_at', ascending=False)
-    
-    # Pilih kolom yang ingin ditampilkan
-    display_columns = ['prospect_name', 'prospect_location', 
-                      'activity_type', 'status', 'created_at']
-    
-    # Rename kolom untuk tampilan yang lebih baik
-    column_mapping = {
-        'prospect_name': 'Nama Prospek',
-        'prospect_location': 'Lokasi',
-        'activity_type': 'Jenis Aktivitas',
-        'status': 'Status',
-        'created_at': 'Tanggal Dibuat'
-    }
-    
-    display_df = activities_df[display_columns].rename(columns=column_mapping)
-    
-    # Mapping status untuk tampilan yang lebih baik
-    display_df['Status'] = display_df['Status'].map(lambda x: status_mapping.get(x, x))
-    
-    # Tampilkan 10 aktivitas terbaru
-    st.dataframe(display_df.head(10), use_container_width=True)
-    
-    # Daftar follow-up yang akan datang
-    if followups:
-        st.subheader("Follow-up yang Akan Datang")
-        
-        followups_df = pd.DataFrame(followups)
-        followups_df['next_followup_date'] = pd.to_datetime(followups_df['next_followup_date'])
-        
-        # Filter follow-up yang akan datang (dalam 7 hari ke depan)
-        today = datetime.now()
-        next_week = today + timedelta(days=7)
-        upcoming_followups = followups_df[
-            (followups_df['next_followup_date'] >= today) & 
-            (followups_df['next_followup_date'] <= next_week)
-        ]
-        
-        if not upcoming_followups.empty:
-            # Gabungkan dengan data aktivitas untuk mendapatkan nama prospek
-            upcoming_followups = upcoming_followups.merge(
-                activities_df[['id', 'prospect_name']],
-                left_on='activity_id',
-                right_on='id',
-                how='left'
-            )
-            
-            # Pilih kolom yang ingin ditampilkan
-            display_columns = ['prospect_name', 'next_followup_date', 'next_action']
-            
-            # Rename kolom untuk tampilan yang lebih baik
-            column_mapping = {
-                'prospect_name': 'Nama Prospek',
-                'next_followup_date': 'Tanggal Follow-up',
-                'next_action': 'Tindakan Selanjutnya'
-            }
-            
-            display_df = upcoming_followups[display_columns].rename(columns=column_mapping)
-            display_df = display_df.sort_values('Tanggal Follow-up')
-            
-            st.dataframe(display_df, use_container_width=True)
-        else:
-            st.info("Tidak ada follow-up yang dijadwalkan dalam 7 hari ke depan.")
 
 # Fungsi untuk menampilkan halaman aktivitas pemasaran
 def show_marketing_activities_page():
