@@ -19,10 +19,11 @@ initialize_database()
 
 # Konfigurasi halaman
 st.set_page_config(
-    page_title="AI Suara Laporan Marketing",
+    page_title="AI Suara Marketing Tracker",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
+    theme="dark"
 )
 
 # Fungsi untuk menampilkan halaman login
@@ -1000,8 +1001,11 @@ def main():
     st.markdown(
         """
         <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+        
         .stApp {
-            background-color: #f8f9fa;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
         }
         .stTabs [data-baseweb="tab-list"] {
             gap: 2px;
@@ -1009,11 +1013,12 @@ def main():
         .stTabs [data-baseweb="tab"] {
             height: 50px;
             white-space: pre-wrap;
-            background-color: #f1f3f5;
+            background-color: #2d2d2d;
             border-radius: 4px 4px 0 0;
             gap: 1px;
             padding-top: 10px;
             padding-bottom: 10px;
+            color: #e0e0e0;
         }
         .stTabs [aria-selected="true"] {
             background-color: #4e73df;
@@ -1032,6 +1037,7 @@ def main():
         }
         .css-1d391kg, .css-12oz5g7 {
             padding-top: 2rem;
+            background-color: #252525;
         }
         </style>
         """, 

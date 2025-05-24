@@ -1,6 +1,6 @@
-/* Custom CSS untuk aplikasi AI Suara Marketing Tracker */
+/* Custom CSS untuk aplikasi AI Suara Marketing Tracker - Dark Mode */
 
-/* Variabel warna */
+/* Variabel warna untuk dark mode */
 :root {
     --primary-color: #4e73df;
     --primary-dark: #3a5ccc;
@@ -8,24 +8,27 @@
     --secondary-dark: #18a673;
     --warning-color: #f6c23e;
     --danger-color: #e74a3b;
-    --light-color: #f8f9fc;
-    --dark-color: #5a5c69;
-    --text-color: #333;
+    --dark-bg: #1e1e1e;
+    --dark-card: #2d2d2d;
+    --dark-sidebar: #252525;
+    --dark-text: #e0e0e0;
+    --dark-text-secondary: #b0b0b0;
+    --dark-border: #444444;
     --border-radius: 8px;
-    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
-/* Reset dan base styles */
+/* Reset dan base styles untuk dark mode */
 .stApp {
-    background-color: #f8f9fa;
-    color: var(--text-color);
+    background-color: var(--dark-bg) !important;
+    color: var(--dark-text) !important;
     font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-/* Header styles */
+/* Header styles untuk dark mode */
 h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
-    color: #2e384d;
+    color: var(--dark-text) !important;
     margin-bottom: 1rem;
 }
 
@@ -38,23 +41,23 @@ h1 {
 
 h2 {
     font-size: 1.5rem;
-    color: var(--primary-color);
+    color: var(--primary-color) !important;
 }
 
 h3 {
     font-size: 1.25rem;
 }
 
-/* Sidebar styling */
+/* Sidebar styling untuk dark mode */
 .css-1d391kg, .css-12oz5g7 {
-    background-color: #fff;
-    border-right: 1px solid #e3e6f0;
+    background-color: var(--dark-sidebar) !important;
+    border-right: 1px solid var(--dark-border) !important;
     padding-top: 2rem;
 }
 
-/* Card styling */
+/* Card styling untuk dark mode */
 .card {
-    background-color: #fff;
+    background-color: var(--dark-card) !important;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     padding: 1.5rem;
@@ -69,19 +72,19 @@ h3 {
     color: var(--primary-color);
 }
 
-/* Button styling */
+/* Button styling untuk dark mode */
 .stButton > button {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--primary-color) !important;
+    color: white !important;
     border-radius: var(--border-radius);
-    border: none;
+    border: none !important;
     padding: 0.5rem 1rem;
     font-weight: 500;
     transition: all 0.2s ease;
 }
 
 .stButton > button:hover {
-    background-color: var(--primary-dark);
+    background-color: var(--primary-dark) !important;
     transform: translateY(-2px);
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
@@ -93,29 +96,31 @@ h3 {
 
 /* Success button */
 .success-button > button {
-    background-color: var(--secondary-color);
+    background-color: var(--secondary-color) !important;
 }
 
 .success-button > button:hover {
-    background-color: var(--secondary-dark);
+    background-color: var(--secondary-dark) !important;
 }
 
 /* Warning button */
 .warning-button > button {
-    background-color: var(--warning-color);
-    color: #5a5c69;
+    background-color: var(--warning-color) !important;
+    color: #5a5c69 !important;
 }
 
 /* Danger button */
 .danger-button > button {
-    background-color: var(--danger-color);
+    background-color: var(--danger-color) !important;
 }
 
-/* Input fields styling */
+/* Input fields styling untuk dark mode */
 .stTextInput > div > div > input, 
 .stTextArea > div > div > textarea {
     border-radius: var(--border-radius);
-    border: 1px solid #d1d3e2;
+    border: 1px solid var(--dark-border) !important;
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
     padding: 0.75rem;
     font-size: 0.9rem;
     transition: border-color 0.2s ease;
@@ -123,20 +128,27 @@ h3 {
 
 .stTextInput > div > div > input:focus, 
 .stTextArea > div > div > textarea:focus {
-    border-color: var(--primary-color);
+    border-color: var(--primary-color) !important;
     box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
 }
 
-/* Select box styling */
+/* Select box styling untuk dark mode */
 .stSelectbox > div > div > div {
     border-radius: var(--border-radius);
-    border: 1px solid #d1d3e2;
+    border: 1px solid var(--dark-border) !important;
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
 }
 
-/* Tabs styling */
+.stSelectbox > div[data-baseweb="select"] > div {
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
+}
+
+/* Tabs styling untuk dark mode */
 .stTabs [data-baseweb="tab-list"] {
     gap: 2px;
-    background-color: #f8f9fa;
+    background-color: var(--dark-bg) !important;
     padding: 0.5rem;
     border-radius: var(--border-radius);
 }
@@ -144,7 +156,8 @@ h3 {
 .stTabs [data-baseweb="tab"] {
     height: 50px;
     white-space: pre-wrap;
-    background-color: #f1f3f5;
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
     border-radius: var(--border-radius);
     gap: 1px;
     padding-top: 10px;
@@ -153,11 +166,11 @@ h3 {
 }
 
 .stTabs [aria-selected="true"] {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--primary-color) !important;
+    color: white !important;
 }
 
-/* DataFrames styling */
+/* DataFrames styling untuk dark mode */
 .dataframe-container {
     border-radius: var(--border-radius);
     overflow: hidden;
@@ -168,9 +181,19 @@ h3 {
     border-radius: var(--border-radius);
 }
 
-/* Metrics styling */
+.stDataFrame th {
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
+}
+
+.stDataFrame td {
+    background-color: var(--dark-sidebar) !important;
+    color: var(--dark-text) !important;
+}
+
+/* Metrics styling untuk dark mode */
 .stMetric {
-    background-color: white;
+    background-color: var(--dark-card) !important;
     padding: 1rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
@@ -178,14 +201,14 @@ h3 {
 }
 
 .stMetric label {
-    color: var(--dark-color);
+    color: var(--dark-text-secondary) !important;
     font-weight: 600;
 }
 
 .stMetric [data-testid="stMetricValue"] {
     font-size: 1.8rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--primary-color) !important;
 }
 
 /* Status badges */
@@ -199,33 +222,33 @@ h3 {
 }
 
 .status-new {
-    background-color: #cfe2ff;
-    color: #084298;
+    background-color: #0d47a1;
+    color: #e3f2fd;
 }
 
 .status-in-progress {
-    background-color: #fff3cd;
-    color: #664d03;
+    background-color: #ef6c00;
+    color: #fff3e0;
 }
 
 .status-success {
-    background-color: #d1e7dd;
-    color: #0f5132;
+    background-color: #1b5e20;
+    color: #e8f5e9;
 }
 
 .status-failed {
-    background-color: #f8d7da;
-    color: #842029;
+    background-color: #b71c1c;
+    color: #ffebee;
 }
 
-/* Login page styling */
+/* Login page styling untuk dark mode */
 .login-container {
     max-width: 400px;
     margin: 0 auto;
     padding: 2rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
-    background-color: white;
+    background-color: var(--dark-card) !important;
     border-top: 4px solid var(--primary-color);
 }
 
@@ -243,7 +266,7 @@ h3 {
     text-align: center;
     margin-top: 2rem;
     font-size: 0.8rem;
-    color: var(--dark-color);
+    color: var(--dark-text-secondary) !important;
 }
 
 /* Responsive adjustments */
@@ -271,9 +294,9 @@ h3 {
     }
 }
 
-/* Dashboard cards */
+/* Dashboard cards untuk dark mode */
 .dashboard-card {
-    background-color: white;
+    background-color: var(--dark-card) !important;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     padding: 1.5rem;
@@ -290,11 +313,11 @@ h3 {
     font-size: 1.1rem;
     margin-bottom: 1rem;
     color: var(--primary-color);
-    border-bottom: 1px solid #e3e6f0;
+    border-bottom: 1px solid var(--dark-border);
     padding-bottom: 0.5rem;
 }
 
-/* Activity timeline */
+/* Activity timeline untuk dark mode */
 .timeline {
     position: relative;
     padding-left: 2rem;
@@ -325,23 +348,23 @@ h3 {
     height: 12px;
     border-radius: 50%;
     background-color: var(--primary-color);
-    border: 2px solid white;
+    border: 2px solid var(--dark-bg);
 }
 
 .timeline-date {
     font-size: 0.8rem;
-    color: var(--dark-color);
+    color: var(--dark-text-secondary);
     margin-bottom: 0.25rem;
 }
 
 .timeline-content {
-    background-color: white;
+    background-color: var(--dark-card);
     padding: 1rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
 }
 
-/* Progress bars */
+/* Progress bars untuk dark mode */
 .progress-container {
     margin-bottom: 1rem;
 }
@@ -350,11 +373,12 @@ h3 {
     display: flex;
     justify-content: space-between;
     margin-bottom: 0.25rem;
+    color: var(--dark-text);
 }
 
 .progress-bar {
     height: 8px;
-    background-color: #e9ecef;
+    background-color: var(--dark-sidebar);
     border-radius: 4px;
     overflow: hidden;
 }
@@ -364,7 +388,7 @@ h3 {
     background-color: var(--primary-color);
 }
 
-/* Tooltips */
+/* Tooltips untuk dark mode */
 .tooltip {
     position: relative;
     display: inline-block;
@@ -373,8 +397,8 @@ h3 {
 .tooltip .tooltip-text {
     visibility: hidden;
     width: 120px;
-    background-color: #333;
-    color: white;
+    background-color: var(--dark-card);
+    color: var(--dark-text);
     text-align: center;
     border-radius: 4px;
     padding: 5px;
@@ -411,22 +435,106 @@ h3 {
     animation: slideInRight 0.5s ease-out;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar untuk dark mode */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--dark-sidebar);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
+    background: var(--dark-border);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
+    background: var(--primary-dark);
+}
+
+/* Streamlit specific overrides untuk dark mode */
+.stAlert {
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
+}
+
+.stAlert a {
+    color: var(--primary-color) !important;
+}
+
+.stMarkdown {
+    color: var(--dark-text) !important;
+}
+
+.stMarkdown a {
+    color: var(--primary-color) !important;
+}
+
+/* Plotly charts background untuk dark mode */
+.js-plotly-plot {
+    background-color: var(--dark-card) !important;
+}
+
+/* Expander untuk dark mode */
+.streamlit-expanderHeader {
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
+}
+
+.streamlit-expanderContent {
+    background-color: var(--dark-sidebar) !important;
+    color: var(--dark-text) !important;
+}
+
+/* Radio buttons untuk dark mode */
+.stRadio > div {
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+}
+
+/* Checkbox untuk dark mode */
+.stCheckbox > div {
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+}
+
+/* Slider untuk dark mode */
+.stSlider > div {
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+}
+
+/* Date input untuk dark mode */
+.stDateInput > div {
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
+    border-radius: var(--border-radius);
+}
+
+.stDateInput > div > div > input {
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
+    border: 1px solid var(--dark-border) !important;
+}
+
+/* Number input untuk dark mode */
+.stNumberInput > div {
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
+    border-radius: var(--border-radius);
+}
+
+.stNumberInput > div > div > input {
+    background-color: var(--dark-card) !important;
+    color: var(--dark-text) !important;
+    border: 1px solid var(--dark-border) !important;
 }
