@@ -62,12 +62,14 @@ def show_login_page():
         st.markdown("</div>", unsafe_allow_html=True)
         
         username = st.text_input("Username")
-        password = st.text_input("Password", type="passw            if st.button("Login", use_container_width=True):
-                if login(username, password):
-                    st.success("Login berhasil!")
-                    st.rerun()
-                else:
-                    st.error("Username atau password salah!")
+        password = st.text_input("Password", type="password")
+        
+        if st.button("Login", use_container_width=True):
+            if login(username, password):
+                st.success("Login berhasil!")
+                st.rerun()
+            else:
+                st.error("Username atau password salah!")
         st.markdown('<div class="login-footer">', unsafe_allow_html=True)
         st.markdown("© 2025 AI Suara Marketing Tracker")
         st.markdown("</div>", unsafe_allow_html=True)
