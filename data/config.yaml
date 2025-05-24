@@ -1,0 +1,9 @@
+app_settings:
+  app_name: AI Suara Marketing Tracker
+  date_format: '%Y-%m-%d %H:%M:%S'
+  theme: light
+  version: 1.0.0
+notification_settings:
+  enable_email: false
+  enable_reminder: true
+  reminder_days_before: 1
