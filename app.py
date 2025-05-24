@@ -19,7 +19,7 @@ initialize_database()
 
 # Konfigurasi halaman
 st.set_page_config(
-    page_title="AI Suara Marketing Tracker",
+    page_title="AI Suara Laporan Marketing",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
