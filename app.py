@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import os
 from utils import (
     initialize_database, check_login, login, logout,
-    get_all_users, add_user, get_all_marketing_activities,
+    get_all_users, add_user, delete_user, get_all_marketing_activities,
     get_marketing_activities_by_username, add_marketing_activity,
     get_activity_by_id, get_all_followups, get_followups_by_activity_id,
     get_followups_by_username, add_followup, update_activity_status,
@@ -562,7 +562,7 @@ def show_user_management_page():
         return
     
     # Tab untuk daftar pengguna dan tambah pengguna
-    tab1, tab2 = st.tabs(["Daftar Pengguna", "Tambah Pengguna"])
+    tab1, tab2, tab3 = st.tabs(["Daftar Pengguna", "Tambah Pengguna", "Hapus Pengguna"])
     
     with tab1:
         users = get_all_users()
@@ -619,12 +619,57 @@ def show_user_management_page():
                     st.error("Password dan konfirmasi password tidak cocok.")
                 else:
                     # Tambahkan pengguna
-                    success, message = add_user(username, name, email, password, role)
+                    success, message = add_user(username, password, name, role, email)
                     
                     if success:
                         st.success(message)
                     else:
                         st.error(message)
+    
+    with tab3:
+        st.subheader("Hapus Pengguna")
+        
+        users = get_all_users()
+        current_username = st.session_state.user['username']
+        
+        # Filter pengguna yang bisa dihapus (tidak termasuk diri sendiri)
+        deletable_users = [user for user in users if user['username'] != current_username]
+        
+        if not deletable_users:
+            st.info("Tidak ada pengguna lain yang dapat dihapus.")
+        else:
+            # Buat daftar username untuk dropdown
+            usernames = [user['username'] for user in deletable_users]
+            
+            # Tampilkan dropdown dan tombol hapus
+            selected_username = st.selectbox("Pilih pengguna yang akan dihapus", usernames)
+            
+            # Tampilkan detail pengguna yang dipilih
+            selected_user = next((user for user in deletable_users if user['username'] == selected_username), None)
+            
+            if selected_user:
+                st.write("**Detail Pengguna:**")
+                st.write(f"Username: {selected_user['username']}")
+                st.write(f"Nama: {selected_user['name']}")
+                st.write(f"Email: {selected_user['email']}")
+                st.write(f"Role: {selected_user['role'].capitalize()}")
+                
+                # Konfirmasi penghapusan
+                st.warning("Penghapusan pengguna tidak dapat dibatalkan. Semua data aktivitas dan follow-up yang terkait dengan pengguna ini akan tetap ada.")
+                
+                if st.button("Hapus Pengguna", key="delete_user_button"):
+                    # Konfirmasi tambahan
+                    confirm = st.checkbox(f"Saya yakin ingin menghapus pengguna {selected_username}")
+                    
+                    if confirm:
+                        success, message = delete_user(selected_username, current_username)
+                        
+                        if success:
+                            st.success(message)
+                            # Refresh halaman setelah penghapusan berhasil
+                            st.experimental_rerun()
+                        else:
+                            st.error(message)
 
 # Fungsi untuk menampilkan halaman pengaturan
 def show_settings_page():
@@ -819,6 +864,9 @@ def main():
     # Inisialisasi session state
     if 'logged_in' not in st.session_state:
         st.session_state.logged_in = False
+    
+    if 'user' not in st.session_state:
+        st.session_state.user = None
     
     # Cek login
     if not st.session_state.logged_in:
