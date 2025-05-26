@@ -141,6 +141,37 @@ def add_user(username, password, name, role, email):
     
     return True, "Pengguna berhasil ditambahkan"
 
+# Fungsi untuk menghapus pengguna
+def delete_user(username, current_user_username):
+    # Jika mencoba menghapus diri sendiri
+    if username == current_user_username:
+        return False, "Anda tidak dapat menghapus akun Anda sendiri"
+    
+    users_file = os.path.join("data", "users.yaml")
+    users_data = read_yaml(users_file)
+    
+    if not users_data or "users" not in users_data:
+        return False, "Data pengguna tidak ditemukan"
+    
+    # Cari pengguna yang akan dihapus
+    user_found = False
+    new_users_list = []
+    
+    for user in users_data["users"]:
+        if user["username"] == username:
+            user_found = True
+        else:
+            new_users_list.append(user)
+    
+    if not user_found:
+        return False, "Pengguna tidak ditemukan"
+    
+    # Update data pengguna
+    users_data["users"] = new_users_list
+    write_yaml(users_file, users_data)
+    
+    return True, f"Pengguna {username} berhasil dihapus"
+
 # Fungsi untuk mendapatkan semua aktivitas pemasaran
 def get_all_marketing_activities():
     activities_file = os.path.join("data", "marketing_activities.yaml")
