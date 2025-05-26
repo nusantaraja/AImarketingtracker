@@ -287,13 +287,17 @@ def update_app_config(config_data):
     write_yaml(config_file, config_data)
     return True, "Konfigurasi berhasil diperbarui"
 
-# Fungsi untuk cek login
+# Fungsi untuk cek login - FIXED: Hanya mengembalikan user, bukan tuple
 def check_login():
+    # Inisialisasi session state jika belum ada
     if 'logged_in' not in st.session_state:
         st.session_state.logged_in = False
+    
+    if 'user' not in st.session_state:
         st.session_state.user = None
     
-    return st.session_state.logged_in, st.session_state.user
+    # Mengembalikan user jika sudah login, None jika belum
+    return st.session_state.user if st.session_state.logged_in else None
 
 # Fungsi untuk login
 def login(username, password):
