@@ -425,29 +425,6 @@ def show_marketing_activities_page():
                     st.write("**Deskripsi**")
                     st.write(activity['description'])
                     
-                    # Tampilkan follow-up
-                    st.subheader("Riwayat Follow-up")
-                    followups = get_followups_by_activity_id(selected_id)
-                    
-                    if followups:
-                        followups_df = pd.DataFrame(followups)
-                        followups_df = followups_df.sort_values('created_at', ascending=False)
-                        
-                        for idx, followup in followups_df.iterrows():
-                            with st.expander(f"Follow-up {followup['followup_date']}"):
-                                st.write(f"**Catatan**: {followup['notes']}")
-                                st.write(f"**Tindakan Selanjutnya**: {followup['next_action']}")
-                                st.write(f"**Jadwal Follow-up Berikutnya**: {followup['next_followup_date']}")
-                                st.write(f"**Tingkat Ketertarikan**: {followup['interest_level']}/5")
-                                st.write(f"**Status**: {status_mapping.get(followup['status_update'], followup['status_update'])}")
-                    else:
-                        st.info("Belum ada follow-up untuk aktivitas ini.")
-                    
-                    # Tambah follow-up baru
-                    if st.button("Tambah Follow-up Baru"):
-                        st.session_state.add_followup_activity_id = selected_id
-                        st.session_state.add_followup_mode = True
-                        st.experimental_rerun()
     
     with tab2:
         st.subheader("Tambah Aktivitas Pemasaran Baru")
@@ -473,6 +450,9 @@ def show_marketing_activities_page():
             
             description = st.text_area("Deskripsi Aktivitas *", height=150)
             
+            # Tambahkan opsi untuk langsung menambahkan follow-up setelah simpan
+            add_followup_after = st.checkbox("Tambahkan Follow-up setelah simpan")
+            
             submitted = st.form_submit_button("Simpan", use_container_width=True)
             
             if submitted:
@@ -491,8 +471,8 @@ def show_marketing_activities_page():
                     
                     if success:
                         st.success(message)
-                        # Tambahkan opsi untuk langsung menambahkan follow-up
-                        if st.button("Tambahkan Follow-up Sekarang"):
+                        # Jika opsi tambah follow-up dicentang, arahkan ke halaman follow-up
+                        if add_followup_after:
                             st.session_state.add_followup_activity_id = activity_id
                             st.session_state.add_followup_mode = True
                             st.experimental_rerun()
@@ -554,229 +534,32 @@ def show_followup_page():
                         )
                         
                         if success:
+                            # Update status aktivitas
+                            update_activity_status(activity_id, status_update)
+                            
                             st.success(message)
                             # Reset mode tambah follow-up
                             st.session_state.add_followup_mode = False
-                            st.session_state.pop('add_followup_activity_id', None)
+                            del st.session_state.add_followup_activity_id
                             st.experimental_rerun()
                         else:
                             st.error(message)
             
-            # Tombol batal
+            # Tombol untuk membatalkan
             if st.button("Batal"):
                 st.session_state.add_followup_mode = False
-                st.session_state.pop('add_followup_activity_id', None)
+                if hasattr(st.session_state, 'add_followup_activity_id'):
+                    del st.session_state.add_followup_activity_id
                 st.experimental_rerun()
-        else:
-            st.error("Aktivitas tidak ditemukan.")
-            st.session_state.add_followup_mode = False
-            st.session_state.pop('add_followup_activity_id', None)
-            st.experimental_rerun()
-    else:
-        # Tab untuk daftar follow-up dan tambah follow-up
-        tab1, tab2 = st.tabs(["Daftar Follow-up", "Tambah Follow-up"])
-        
-        with tab1:
-            # Filter berdasarkan role
-            if user['role'] == 'superadmin':
-                followups = get_all_followups()
-                activities = get_all_marketing_activities()
-            else:
-                followups = get_followups_by_username(user['username'])
-                activities = get_marketing_activities_by_username(user['username'])
-            
-            if not followups:
-                st.info("Belum ada data follow-up.")
-            else:
-                # Konversi ke DataFrame
-                followups_df = pd.DataFrame(followups)
-                activities_df = pd.DataFrame(activities)
-                
-                # Gabungkan dengan data aktivitas untuk mendapatkan nama prospek
-                merged_df = followups_df.merge(
-                    activities_df[['id', 'prospect_name', 'prospect_location']],
-                    left_on='activity_id',
-                    right_on='id',
-                    how='left',
-                    suffixes=('', '_activity')
-                )
-                
-                # Filter dan pencarian
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    if 'status_update' in merged_df.columns:
-                        status_options = ['Semua'] + sorted(merged_df['status_update'].unique().tolist())
-                        status_filter = st.selectbox("Filter Status", status_options)
-                
-                with col2:
-                    search_term = st.text_input("Cari Prospek", "")
-                
-                # Terapkan filter
-                filtered_df = merged_df.copy()
-                
-                if status_filter != 'Semua' and 'status_update' in filtered_df.columns:
-                    filtered_df = filtered_df[filtered_df['status_update'] == status_filter]
-                
-                if search_term:
-                    filtered_df = filtered_df[
-                        filtered_df['prospect_name'].str.contains(search_term, case=False) |
-                        filtered_df['prospect_location'].str.contains(search_term, case=False)
-                    ]
-                
-                # Pilih kolom yang ingin ditampilkan
-                if user['role'] == 'superadmin':
-                    display_columns = ['id', 'marketer_username', 'prospect_name', 'followup_date', 
-                                      'next_followup_date', 'interest_level', 'status_update']
-                    column_mapping = {
-                        'id': 'ID',
-                        'marketer_username': 'Marketing',
-                        'prospect_name': 'Nama Prospek',
-                        'followup_date': 'Tanggal Follow-up',
-                        'next_followup_date': 'Jadwal Follow-up Berikutnya',
-                        'interest_level': 'Ketertarikan',
-                        'status_update': 'Status'
-                    }
-                else:
-                    display_columns = ['id', 'prospect_name', 'followup_date', 
-                                      'next_followup_date', 'interest_level', 'status_update']
-                    column_mapping = {
-                        'id': 'ID',
-                        'prospect_name': 'Nama Prospek',
-                        'followup_date': 'Tanggal Follow-up',
-                        'next_followup_date': 'Jadwal Follow-up Berikutnya',
-                        'interest_level': 'Ketertarikan',
-                        'status_update': 'Status'
-                    }
-                
-                # Mapping status untuk tampilan yang lebih baik
-                status_mapping = {
-                    'baru': 'Baru',
-                    'dalam_proses': 'Dalam Proses',
-                    'berhasil': 'Berhasil',
-                    'gagal': 'Gagal'
-                }
-                
-                display_df = filtered_df[display_columns].rename(columns=column_mapping)
-                
-                if 'Status' in display_df.columns:
-                    display_df['Status'] = display_df['Status'].map(lambda x: status_mapping.get(x, x))
-                
-                # Tampilkan data
-                st.dataframe(display_df, use_container_width=True)
-                
-                # Detail follow-up
-                st.subheader("Detail Follow-up")
-                selected_id = st.selectbox("Pilih ID Follow-up untuk melihat detail", 
-                                          options=filtered_df['id'].tolist())
-                
-                if selected_id:
-                    selected_followup = None
-                    for followup in followups:
-                        if followup['id'] == selected_id:
-                            selected_followup = followup
-                            break
-                    
-                    if selected_followup:
-                        # Dapatkan data aktivitas terkait
-                        activity = get_activity_by_id(selected_followup['activity_id'])
-                        
-                        if activity:
-                            col1, col2 = st.columns(2)
-                            
-                            with col1:
-                                st.write("**Informasi Prospek**")
-                                st.write(f"Nama: {activity['prospect_name']}")
-                                st.write(f"Lokasi: {activity['prospect_location']}")
-                                st.write(f"Marketing: {selected_followup['marketer_username']}")
-                            
-                            with col2:
-                                st.write("**Informasi Follow-up**")
-                                st.write(f"Tanggal Follow-up: {selected_followup['followup_date']}")
-                                st.write(f"Jadwal Follow-up Berikutnya: {selected_followup['next_followup_date']}")
-                                st.write(f"Tingkat Ketertarikan: {selected_followup['interest_level']}/5")
-                                st.write(f"Status: {status_mapping.get(selected_followup['status_update'], selected_followup['status_update'])}")
-                            
-                            st.write("**Catatan Hasil Follow-up**")
-                            st.write(selected_followup['notes'])
-                            
-                            st.write("**Rencana Tindak Lanjut**")
-                            st.write(selected_followup['next_action'])
-        
-        with tab2:
-            st.subheader("Tambah Follow-up Baru")
-            
-            # Dapatkan daftar aktivitas
-            if user['role'] == 'superadmin':
-                activities = get_all_marketing_activities()
-            else:
-                activities = get_marketing_activities_by_username(user['username'])
-            
-            if not activities:
-                st.info("Belum ada aktivitas pemasaran. Tambahkan aktivitas pemasaran terlebih dahulu.")
-            else:
-                # Buat opsi untuk dropdown
-                activity_options = []
-                for activity in activities:
-                    option_text = f"{activity['prospect_name']} - {activity['prospect_location']} ({activity['id']})"
-                    activity_options.append((activity['id'], option_text))
-                
-                # Form tambah follow-up
-                with st.form("add_followup_form_tab"):
-                    # Pilih aktivitas
-                    selected_activity_id = st.selectbox(
-                        "Pilih Aktivitas *",
-                        options=[id for id, _ in activity_options],
-                        format_func=lambda x: next((text for id, text in activity_options if id == x), x)
-                    )
-                    
-                    col1, col2 = st.columns(2)
-                    
-                    with col1:
-                        followup_date = st.date_input("Tanggal Follow-up *", datetime.now())
-                        notes = st.text_area("Catatan Hasil Follow-up *", height=150)
-                    
-                    with col2:
-                        next_action = st.text_input("Rencana Tindak Lanjut Berikutnya *")
-                        next_followup_date = st.date_input("Jadwal Follow-up Berikutnya *", 
-                                                         datetime.now() + timedelta(days=7))
-                        interest_level = st.slider("Tingkat Ketertarikan Prospek", 1, 5, 3)
-                        status_update = st.selectbox(
-                            "Status Prospek *",
-                            ["baru", "dalam_proses", "berhasil", "gagal"],
-                            format_func=lambda x: {
-                                'baru': 'Baru',
-                                'dalam_proses': 'Dalam Proses',
-                                'berhasil': 'Berhasil',
-                                'gagal': 'Gagal'
-                            }.get(x, x)
-                        )
-                    
-                    submitted = st.form_submit_button("Simpan", use_container_width=True)
-                    
-                    if submitted:
-                        if not notes or not next_action:
-                            st.error("Mohon lengkapi semua field yang wajib diisi (bertanda *).")
-                        else:
-                            # Format tanggal
-                            followup_date_str = followup_date.strftime("%Y-%m-%d %H:%M:%S")
-                            next_followup_date_str = next_followup_date.strftime("%Y-%m-%d %H:%M:%S")
-                            
-                            # Tambahkan follow-up
-                            success, message = add_followup(
-                                selected_activity_id, user['username'], followup_date_str,
-                                notes, next_action, next_followup_date_str,
-                                interest_level, status_update
-                            )
-                            
-                            if success:
-                                st.success(message)
-                            else:
-                                st.error(message)
 
-# Fungsi untuk menampilkan halaman manajemen pengguna (superadmin only)
+# Fungsi untuk menampilkan halaman manajemen pengguna
 def show_user_management_page():
     st.title("Manajemen Pengguna")
+    
+    # Hanya superadmin yang bisa mengakses halaman ini
+    if st.session_state.user['role'] != 'superadmin':
+        st.error("Anda tidak memiliki akses ke halaman ini.")
+        return
     
     # Tab untuk daftar pengguna dan tambah pengguna
     tab1, tab2 = st.tabs(["Daftar Pengguna", "Tambah Pengguna"])
@@ -790,20 +573,19 @@ def show_user_management_page():
             # Konversi ke DataFrame
             users_df = pd.DataFrame(users)
             
-            # Hapus kolom password_hash
-            if 'password_hash' in users_df.columns:
-                users_df = users_df.drop(columns=['password_hash'])
+            # Pilih kolom yang ingin ditampilkan
+            display_columns = ['username', 'name', 'email', 'role', 'created_at']
             
             # Rename kolom untuk tampilan yang lebih baik
             column_mapping = {
                 'username': 'Username',
                 'name': 'Nama',
-                'role': 'Role',
                 'email': 'Email',
+                'role': 'Role',
                 'created_at': 'Tanggal Dibuat'
             }
             
-            display_df = users_df.rename(columns=column_mapping)
+            display_df = users_df[display_columns].rename(columns=column_mapping)
             
             # Mapping role untuk tampilan yang lebih baik
             display_df['Role'] = display_df['Role'].map(lambda x: x.capitalize())
@@ -814,67 +596,69 @@ def show_user_management_page():
     with tab2:
         st.subheader("Tambah Pengguna Baru")
         
+        # Form tambah pengguna
         with st.form("add_user_form"):
             col1, col2 = st.columns(2)
             
             with col1:
                 username = st.text_input("Username *")
-                password = st.text_input("Password *", type="password")
-                confirm_password = st.text_input("Konfirmasi Password *", type="password")
-            
-            with col2:
                 name = st.text_input("Nama Lengkap *")
                 email = st.text_input("Email *")
-                role = st.selectbox("Role *", ["marketing", "superadmin"])
+            
+            with col2:
+                password = st.text_input("Password *", type="password")
+                confirm_password = st.text_input("Konfirmasi Password *", type="password")
+                role = st.selectbox("Role *", ["marketing", "superadmin"], format_func=lambda x: x.capitalize())
             
             submitted = st.form_submit_button("Simpan", use_container_width=True)
             
             if submitted:
-                if not username or not password or not confirm_password or not name or not email:
+                if not username or not name or not email or not password:
                     st.error("Mohon lengkapi semua field yang wajib diisi (bertanda *).")
                 elif password != confirm_password:
-                    st.error("Password dan konfirmasi password tidak sama.")
+                    st.error("Password dan konfirmasi password tidak cocok.")
                 else:
-                    # Tambahkan pengguna baru
-                    success, message = add_user(username, password, name, role, email)
+                    # Tambahkan pengguna
+                    success, message = add_user(username, name, email, password, role)
                     
                     if success:
                         st.success(message)
                     else:
                         st.error(message)
 
-# Fungsi untuk menampilkan halaman pengaturan (superadmin only)
+# Fungsi untuk menampilkan halaman pengaturan
 def show_settings_page():
-    st.title("Pengaturan Aplikasi")
+    st.title("Pengaturan")
     
-    # Ambil konfigurasi aplikasi
-    config = get_app_config()
-    
-    if not config:
-        st.error("Gagal memuat konfigurasi aplikasi.")
+    # Hanya superadmin yang bisa mengakses halaman ini
+    if st.session_state.user['role'] != 'superadmin':
+        st.error("Anda tidak memiliki akses ke halaman ini.")
         return
     
-    # Tab untuk pengaturan umum dan notifikasi
-    tab1, tab2 = st.tabs(["Pengaturan Umum", "Pengaturan Notifikasi"])
+    # Tab untuk pengaturan umum dan backup/restore
+    tab1, tab2 = st.tabs(["Pengaturan Umum", "Backup & Restore"])
     
     with tab1:
-        st.subheader("Pengaturan Umum")
+        st.subheader("Pengaturan Aplikasi")
         
-        with st.form("general_settings_form"):
-            app_name = st.text_input("Nama Aplikasi", config['app_settings']['app_name'])
-            theme = st.selectbox("Tema", ["light", "dark"], 
-                               index=0 if config['app_settings']['theme'] == 'light' else 1)
-            date_format = st.text_input("Format Tanggal", config['app_settings']['date_format'])
+        # Ambil konfigurasi saat ini
+        config = get_app_config()
+        
+        # Form pengaturan
+        with st.form("settings_form"):
+            app_name = st.text_input("Nama Aplikasi", config.get('app_name', 'AI Suara Marketing Tracker'))
+            company_name = st.text_input("Nama Perusahaan", config.get('company_name', 'AI Suara'))
             
-            submitted = st.form_submit_button("Simpan", use_container_width=True)
+            submitted = st.form_submit_button("Simpan Pengaturan", use_container_width=True)
             
             if submitted:
                 # Update konfigurasi
-                config['app_settings']['app_name'] = app_name
-                config['app_settings']['theme'] = theme
-                config['app_settings']['date_format'] = date_format
+                new_config = {
+                    'app_name': app_name,
+                    'company_name': company_name
+                }
                 
-                success, message = update_app_config(config)
+                success, message = update_app_config(new_config)
                 
                 if success:
                     st.success(message)
@@ -882,35 +666,110 @@ def show_settings_page():
                     st.error(message)
     
     with tab2:
-        st.subheader("Pengaturan Notifikasi")
+        st.subheader("Backup & Restore Data")
         
-        with st.form("notification_settings_form"):
-            enable_email = st.checkbox("Aktifkan Notifikasi Email", 
-                                     config['notification_settings']['enable_email'])
-            enable_reminder = st.checkbox("Aktifkan Pengingat Follow-up", 
-                                        config['notification_settings']['enable_reminder'])
-            reminder_days_before = st.number_input("Hari Sebelum Follow-up untuk Pengingat", 
-                                                 min_value=1, max_value=7, 
-                                                 value=config['notification_settings']['reminder_days_before'])
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.write("**Backup Data**")
+            st.write("Backup data aplikasi ke file.")
             
-            submitted = st.form_submit_button("Simpan", use_container_width=True)
-            
-            if submitted:
-                # Update konfigurasi
-                config['notification_settings']['enable_email'] = enable_email
-                config['notification_settings']['enable_reminder'] = enable_reminder
-                config['notification_settings']['reminder_days_before'] = reminder_days_before
-                
-                success, message = update_app_config(config)
+            if st.button("Backup Data Sekarang", use_container_width=True):
+                success, message, backup_file = backup_data()
                 
                 if success:
                     st.success(message)
+                    
+                    # Download link
+                    with open(backup_file, "rb") as file:
+                        st.download_button(
+                            label="Download Backup File",
+                            data=file,
+                            file_name=os.path.basename(backup_file),
+                            mime="application/octet-stream",
+                            use_container_width=True
+                        )
+                else:
+                    st.error(message)
+        
+        with col2:
+            st.write("**Restore Data**")
+            st.write("Restore data aplikasi dari file backup.")
+            
+            uploaded_file = st.file_uploader("Pilih file backup", type=["zip"])
+            
+            if uploaded_file is not None:
+                if st.button("Restore Data", use_container_width=True):
+                    # Simpan file yang diupload
+                    with open("temp_backup.zip", "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+                    
+                    # Restore data
+                    success, message = restore_data("temp_backup.zip")
+                    
+                    if success:
+                        st.success(message)
+                    else:
+                        st.error(message)
+        
+        st.divider()
+        
+        st.subheader("Validasi & Export Data")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.write("**Validasi Integritas Data**")
+            st.write("Periksa integritas data aplikasi.")
+            
+            if st.button("Validasi Data", use_container_width=True):
+                success, message, issues = validate_data_integrity()
+                
+                if success and not issues:
+                    st.success(message)
+                elif success and issues:
+                    st.warning(message)
+                    st.write("Masalah yang ditemukan:")
+                    for issue in issues:
+                        st.write(f"- {issue}")
+                else:
+                    st.error(message)
+        
+        with col2:
+            st.write("**Export Data ke CSV**")
+            st.write("Export data aplikasi ke file CSV.")
+            
+            export_type = st.selectbox(
+                "Pilih data yang akan diexport",
+                ["Aktivitas Pemasaran", "Follow-up", "Pengguna"]
+            )
+            
+            if st.button("Export Data", use_container_width=True):
+                if export_type == "Aktivitas Pemasaran":
+                    success, message, export_file = export_to_csv("activities")
+                elif export_type == "Follow-up":
+                    success, message, export_file = export_to_csv("followups")
+                else:
+                    success, message, export_file = export_to_csv("users")
+                
+                if success:
+                    st.success(message)
+                    
+                    # Download link
+                    with open(export_file, "rb") as file:
+                        st.download_button(
+                            label="Download CSV File",
+                            data=file,
+                            file_name=os.path.basename(export_file),
+                            mime="text/csv",
+                            use_container_width=True
+                        )
                 else:
                     st.error(message)
 
-# Fungsi untuk menampilkan halaman profil (marketing only)
+# Fungsi untuk menampilkan halaman profil
 def show_profile_page():
-    st.title("Profil Pengguna")
+    st.title("Profil Saya")
     
     user = st.session_state.user
     
@@ -922,12 +781,12 @@ def show_profile_page():
         st.write(f"Nama: {user['name']}")
         st.write(f"Email: {user['email']}")
         st.write(f"Role: {user['role'].capitalize()}")
-        st.write(f"Tanggal Dibuat: {user['created_at']}")
+        st.write(f"Bergabung sejak: {user['created_at']}")
     
     with col2:
         st.write("**Statistik Aktivitas**")
         
-        # Ambil data aktivitas marketing
+        # Ambil data aktivitas
         activities = get_marketing_activities_by_username(user['username'])
         followups = get_followups_by_username(user['username'])
         
@@ -935,139 +794,61 @@ def show_profile_page():
         st.write(f"Total Follow-up: {len(followups)}")
         
         if activities:
-            # Hitung jumlah prospek
-            prospect_count = len(set([activity['prospect_name'] for activity in activities]))
-            st.write(f"Total Prospek: {prospect_count}")
+            # Hitung statistik
+            activities_df = pd.DataFrame(activities)
             
-            # Hitung distribusi status
-            status_counts = {}
-            for activity in activities:
-                status = activity['status']
-                if status in status_counts:
-                    status_counts[status] += 1
-                else:
-                    status_counts[status] = 1
-            
-            # Mapping status untuk tampilan yang lebih baik
-            status_mapping = {
-                'baru': 'Baru',
-                'dalam_proses': 'Dalam Proses',
-                'berhasil': 'Berhasil',
-                'gagal': 'Gagal'
-            }
-            
-            for status, count in status_counts.items():
-                st.write(f"{status_mapping.get(status, status)}: {count}")
-    
-    # Ganti password
-    st.subheader("Ganti Password")
-    
-    with st.form("change_password_form"):
-        current_password = st.text_input("Password Saat Ini", type="password")
-        new_password = st.text_input("Password Baru", type="password")
-        confirm_password = st.text_input("Konfirmasi Password Baru", type="password")
-        
-        submitted = st.form_submit_button("Simpan", use_container_width=True)
-        
-        if submitted:
-            if not current_password or not new_password or not confirm_password:
-                st.error("Mohon lengkapi semua field.")
-            elif new_password != confirm_password:
-                st.error("Password baru dan konfirmasi password tidak sama.")
-            else:
-                # Verifikasi password saat ini
-                if authenticate_user(user['username'], current_password):
-                    # Update password
-                    users_file = os.path.join("data", "users.yaml")
-                    users_data = read_yaml(users_file)
-                    
-                    for u in users_data['users']:
-                        if u['username'] == user['username']:
-                            u['password_hash'] = hash_password(new_password)
-                            break
-                    
-                    write_yaml(users_file, users_data)
-                    st.success("Password berhasil diubah.")
-                else:
-                    st.error("Password saat ini salah.")
+            # Status
+            if 'status' in activities_df.columns:
+                status_counts = activities_df['status'].value_counts()
+                
+                st.write("**Distribusi Status Prospek**")
+                
+                # Mapping status untuk tampilan yang lebih baik
+                status_mapping = {
+                    'baru': 'Baru',
+                    'dalam_proses': 'Dalam Proses',
+                    'berhasil': 'Berhasil',
+                    'gagal': 'Gagal'
+                }
+                
+                for status, count in status_counts.items():
+                    st.write(f"{status_mapping.get(status, status)}: {count}")
 
 # Fungsi utama
 def main():
+    # Inisialisasi session state
+    if 'logged_in' not in st.session_state:
+        st.session_state.logged_in = False
+    
     # Cek login
-    logged_in, user = check_login()
+    if not st.session_state.logged_in:
+        user = check_login()
+        if user:
+            st.session_state.logged_in = True
+            st.session_state.user = user
+        else:
+            show_login_page()
+            return
     
-    # Tambahkan CSS kustom
-    st.markdown(
-        """
-        <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
-        
-        .stApp {
-            background-color: #1e1e1e;
-            color: #e0e0e0;
-        }
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 2px;
-        }
-        .stTabs [data-baseweb="tab"] {
-            height: 50px;
-            white-space: pre-wrap;
-            background-color: #2d2d2d;
-            border-radius: 4px 4px 0 0;
-            gap: 1px;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            color: #e0e0e0;
-        }
-        .stTabs [aria-selected="true"] {
-            background-color: #4e73df;
-            color: white;
-        }
-        .stButton>button {
-            background-color: #4e73df;
-            color: white;
-            border-radius: 4px;
-            border: none;
-            padding: 0.5rem 1rem;
-            font-weight: 500;
-        }
-        .stButton>button:hover {
-            background-color: #3a5ccc;
-        }
-        .css-1d391kg, .css-12oz5g7 {
-            padding-top: 2rem;
-            background-color: #252525;
-        }
-        </style>
-        """, 
-        unsafe_allow_html=True
-    )
+    # Tampilkan sidebar dan dapatkan menu yang dipilih
+    menu = show_sidebar()
     
-    if not logged_in:
-        show_login_page()
-    else:
-        menu = show_sidebar()
-        
-        if menu == "Dashboard":
-            if user['role'] == 'superadmin':
-                show_superadmin_dashboard()
-            else:
-                show_marketing_dashboard()
-        
-        elif menu == "Aktivitas Pemasaran":
-            show_marketing_activities_page()
-        
-        elif menu == "Follow-up":
-            show_followup_page()
-        
-        elif menu == "Manajemen Pengguna" and user['role'] == 'superadmin':
-            show_user_management_page()
-        
-        elif menu == "Pengaturan" and user['role'] == 'superadmin':
-            show_settings_page()
-        
-        elif menu == "Profil" and user['role'] == 'marketing':
-            show_profile_page()
+    # Tampilkan halaman sesuai menu yang dipilih
+    if menu == "Dashboard":
+        if st.session_state.user['role'] == 'superadmin':
+            show_superadmin_dashboard()
+        else:
+            show_marketing_dashboard()
+    elif menu == "Aktivitas Pemasaran":
+        show_marketing_activities_page()
+    elif menu == "Follow-up":
+        show_followup_page()
+    elif menu == "Manajemen Pengguna":
+        show_user_management_page()
+    elif menu == "Pengaturan":
+        show_settings_page()
+    elif menu == "Profil":
+        show_profile_page()
 
 if __name__ == "__main__":
     main()
