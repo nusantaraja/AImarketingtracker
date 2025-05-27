@@ -37,25 +37,34 @@ def show_login_page():
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             background-color: #f8f9fa;
+            text-align: center;
         }
         .login-header {
             text-align: center;
             margin-bottom: 2rem;
         }
         .login-logo {
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin-bottom: 1.5rem;
         }
         .login-logo img {
             max-width: 180px;
             margin: 0 auto;
-            display: block;
         }
         .login-footer {
             text-align: center;
             margin-top: 2rem;
             font-size: 0.8rem;
             color: #6c757d;
+        }
+        /* Menghilangkan persegi panjang di atas logo */
+        .block-container {
+            padding-top: 0 !important;
+        }
+        .css-1544g2n {
+            padding-top: 0 !important;
         }
         </style>
         """, 
@@ -67,15 +76,13 @@ def show_login_page():
     with col2:
         st.markdown('<div class="login-container">', unsafe_allow_html=True)
         
-        # Logo di atas judul
+        # Logo di tengah
         st.markdown('<div class="login-logo">', unsafe_allow_html=True)
         st.image("static/img/logo.jpg", width=180)
         st.markdown('</div>', unsafe_allow_html=True)
         
         # Judul di tengah
-        st.markdown('<div class="login-header">', unsafe_allow_html=True)
         st.markdown('<h1 style="text-align: center;">AI Suara Marketing Tracker</h1>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
         
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
