@@ -42,6 +42,15 @@ def show_login_page():
             text-align: center;
             margin-bottom: 2rem;
         }
+        .login-logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .login-logo img {
+            max-width: 180px;
+            margin: 0 auto;
+            display: block;
+        }
         .login-footer {
             text-align: center;
             margin-top: 2rem;
@@ -57,9 +66,16 @@ def show_login_page():
     
     with col2:
         st.markdown('<div class="login-container">', unsafe_allow_html=True)
+        
+        # Logo di atas judul
+        st.markdown('<div class="login-logo">', unsafe_allow_html=True)
+        st.image("static/img/logo.jpg", width=180)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Judul di tengah
         st.markdown('<div class="login-header">', unsafe_allow_html=True)
-        st.title("AI Suara Marketing Tracker")
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown('<h1 style="text-align: center;">AI Suara Marketing Tracker</h1>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
         
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
