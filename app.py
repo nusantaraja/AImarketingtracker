@@ -27,76 +27,64 @@ st.set_page_config(
 
 # Fungsi untuk menampilkan halaman login
 def show_login_page():
-    st.markdown(
-        """
+    # Hapus semua padding dan margin default
+    st.markdown("""
         <style>
-        .login-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            background-color: #f8f9fa;
-            text-align: center;
-        }
-        .login-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .login-logo {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        .login-logo img {
-            max-width: 180px;
-            margin: 0 auto;
-        }
-        .login-footer {
-            text-align: center;
-            margin-top: 2rem;
-            font-size: 0.8rem;
-            color: #6c757d;
-        }
-        /* Menghilangkan persegi panjang di atas logo */
-        .block-container {
-            padding-top: 0 !important;
-        }
-        .css-1544g2n {
-            padding-top: 0 !important;
-        }
+            .block-container {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                margin-top: 0 !important;
+            }
+            .css-1544g2n {
+                padding-top: 0 !important;
+            }
+            .css-18e3th9 {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            .css-1d391kg {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            div[data-testid="stVerticalBlock"] {
+                gap: 0 !important;
+            }
         </style>
-        """, 
-        unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
     
+    # Gunakan HTML murni untuk memastikan logo benar-benar di tengah
+    st.markdown("""
+        <div style="display: flex; justify-content: center; align-items: center; margin-top: 20px; margin-bottom: 20px;">
+            <img src="static/img/logo.jpg" style="max-width: 180px; margin: 0 auto;">
+        </div>
+        <h1 style="text-align: center; margin-bottom: 30px;">AI Suara Marketing Tracker</h1>
+    """, unsafe_allow_html=True)
+    
+    # Buat container untuk form login
+    login_container = st.container()
+    
+    # Buat kolom untuk memastikan form login berada di tengah
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        st.markdown('<div class="login-container">', unsafe_allow_html=True)
+        with st.form("login_form"):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            submit = st.form_submit_button("Login", use_container_width=True)
+            
+            if submit:
+                if login(username, password):
+                    st.success("Login berhasil!")
+                    st.rerun()
+                else:
+                    st.error("Username atau password salah!")
         
-        # Logo di tengah
-        st.markdown('<div class="login-logo">', unsafe_allow_html=True)
-        st.image("static/img/logo.jpg", width=180)
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        # Judul di tengah
-        st.markdown('<h1 style="text-align: center;">AI Suara Marketing Tracker</h1>', unsafe_allow_html=True)
-        
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        
-        if st.button("Login", use_container_width=True):
-            if login(username, password):
-                st.success("Login berhasil!")
-                st.rerun()
-            else:
-                st.error("Username atau password salah!")
-        st.markdown('<div class="login-footer">', unsafe_allow_html=True)
-        st.markdown("© 2025 AI Suara Marketing Tracker")
-        st.markdown("</div>", unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        # Footer
+        st.markdown("""
+            <div style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: #6c757d;">
+                © 2025 AI Suara Marketing Tracker
+            </div>
+        """, unsafe_allow_html=True)
 
 # Fungsi untuk menampilkan sidebar
 def show_sidebar():
