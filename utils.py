@@ -223,6 +223,82 @@ def add_marketing_activity(marketer_username, prospect_name, prospect_location,
     
     return True, "Aktivitas pemasaran berhasil ditambahkan", activity_id
 
+# Fungsi untuk mengedit aktivitas pemasaran
+def edit_marketing_activity(activity_id, prospect_name, prospect_location, 
+                           contact_person, contact_position, contact_phone, 
+                           contact_email, activity_date, activity_type, description, status):
+    activities_file = os.path.join("data", "marketing_activities.yaml")
+    activities_data = read_yaml(activities_file)
+    
+    if not activities_data or "activities" not in activities_data:
+        return False, "Data aktivitas tidak ditemukan"
+    
+    # Cari aktivitas yang akan diedit
+    activity_found = False
+    
+    for activity in activities_data["activities"]:
+        if activity["id"] == activity_id:
+            activity_found = True
+            
+            # Update data aktivitas
+            activity["prospect_name"] = prospect_name
+            activity["prospect_location"] = prospect_location
+            activity["contact_person"] = contact_person
+            activity["contact_position"] = contact_position
+            activity["contact_phone"] = contact_phone
+            activity["contact_email"] = contact_email
+            activity["activity_date"] = activity_date
+            activity["activity_type"] = activity_type
+            activity["description"] = description
+            activity["status"] = status
+            activity["updated_at"] = get_current_timestamp()
+            
+            break
+    
+    if not activity_found:
+        return False, "Aktivitas tidak ditemukan"
+    
+    # Simpan perubahan
+    write_yaml(activities_file, activities_data)
+    
+    return True, "Aktivitas pemasaran berhasil diperbarui"
+
+# Fungsi untuk menghapus aktivitas pemasaran
+def delete_marketing_activity(activity_id):
+    activities_file = os.path.join("data", "marketing_activities.yaml")
+    activities_data = read_yaml(activities_file)
+    
+    if not activities_data or "activities" not in activities_data:
+        return False, "Data aktivitas tidak ditemukan"
+    
+    # Cari aktivitas yang akan dihapus
+    activity_found = False
+    new_activities_list = []
+    
+    for activity in activities_data["activities"]:
+        if activity["id"] == activity_id:
+            activity_found = True
+        else:
+            new_activities_list.append(activity)
+    
+    if not activity_found:
+        return False, "Aktivitas tidak ditemukan"
+    
+    # Update data aktivitas
+    activities_data["activities"] = new_activities_list
+    write_yaml(activities_file, activities_data)
+    
+    # Hapus juga semua follow-up terkait
+    followups_file = os.path.join("data", "followups.yaml")
+    followups_data = read_yaml(followups_file)
+    
+    if followups_data and "followups" in followups_data:
+        new_followups_list = [f for f in followups_data["followups"] if f["activity_id"] != activity_id]
+        followups_data["followups"] = new_followups_list
+        write_yaml(followups_file, followups_data)
+    
+    return True, "Aktivitas pemasaran berhasil dihapus"
+
 # Fungsi untuk memperbarui status aktivitas pemasaran
 def update_activity_status(activity_id, new_status):
     activities_file = os.path.join("data", "marketing_activities.yaml")
