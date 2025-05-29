@@ -14,14 +14,44 @@ from utils_with_edit_delete import (
     get_app_config, update_app_config
 )
 from data_utils import backup_data, restore_data, validate_data_integrity, export_to_csv
-from auto_backup import backup_data
-
-# Contoh di fungsi add_marketing_activity():
-def add_marketing_activity(...):
-    # ... kode sebelumnya ...
-    if success:
-        backup_data()  # <-- BARIS INI SAJA
-        st.success("Data tersimpan!")
+    def add_marketing_activity(
+        marketer_username, 
+        prospect_name, 
+        prospect_location,
+        contact_person, 
+        contact_position, 
+        contact_phone,
+        contact_email, 
+        activity_date, 
+        activity_type, 
+        description
+):
+    try:
+        # Your existing code to add marketing activity
+        success, message, activity_id = add_marketing_activity(
+            marketer_username,
+            prospect_name,
+            prospect_location,
+            contact_person,
+            contact_position,
+            contact_phone,
+            contact_email,
+            activity_date,
+            activity_type,
+            description
+        )
+        if success:
+            # Trigger backup after successful addition
+            backup_data()
+            st.success("Data tersimpan!")
+            return True, message, activity_id
+        else:
+            st.error(message)
+            return False, message, None
+            
+    except Exception as e:
+        st.error(f"Error: {str(e)}")
+        return False, str(e), None
 
 # Inisialisasi database
 initialize_database()
