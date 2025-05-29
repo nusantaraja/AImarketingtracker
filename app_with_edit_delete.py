@@ -14,6 +14,14 @@ from utils_with_edit_delete import (
     get_app_config, update_app_config
 )
 from data_utils import backup_data, restore_data, validate_data_integrity, export_to_csv
+from auto_backup import backup_data
+
+# Contoh di fungsi add_marketing_activity():
+def add_marketing_activity(...):
+    # ... kode sebelumnya ...
+    if success:
+        backup_data()  # <-- BARIS INI SAJA
+        st.success("Data tersimpan!")
 
 # Inisialisasi database
 initialize_database()
