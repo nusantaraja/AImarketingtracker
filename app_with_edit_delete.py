@@ -461,7 +461,7 @@ def show_marketing_activities_page():
                     if st.button("Tambahkan Follow-up", key="add_followup_button"):
                         st.session_state.add_followup_activity_id = selected_id
                         st.session_state.add_followup_mode = True
-                        st.experimental_rerun()
+                        st.rerun()
     
     with tab2:
         st.subheader("Tambah Aktivitas Pemasaran Baru")
@@ -512,7 +512,7 @@ def show_marketing_activities_page():
                         if add_followup_after:
                             st.session_state.add_followup_activity_id = activity_id
                             st.session_state.add_followup_mode = True
-                            st.experimental_rerun()
+                            st.rerun()
                     else:
                         st.error(message)
     
@@ -656,7 +656,7 @@ def show_marketing_activities_page():
                         if success:
                             st.success(message)
                             # Refresh halaman setelah penghapusan berhasil
-                            st.experimental_rerun()
+                            st.rerun()
                         else:
                             st.error(message)
 
@@ -723,7 +723,7 @@ def show_followup_page():
                             # Reset mode tambah follow-up
                             st.session_state.add_followup_mode = False
                             del st.session_state.add_followup_activity_id
-                            st.experimental_rerun()
+                            st.rerun()
                         else:
                             st.error(message)
             
@@ -732,7 +732,7 @@ def show_followup_page():
                 st.session_state.add_followup_mode = False
                 if hasattr(st.session_state, 'add_followup_activity_id'):
                     del st.session_state.add_followup_activity_id
-                st.experimental_rerun()
+                st.rerun()
     else:
         # Tab untuk daftar follow-up dan tambah follow-up
         tab1, tab2 = st.tabs(["Daftar Follow-up", "Tambah Follow-up"])
@@ -859,7 +859,7 @@ def show_followup_page():
                     if st.button("Lanjutkan ke Form Follow-up"):
                         st.session_state.add_followup_activity_id = selected_id
                         st.session_state.add_followup_mode = True
-                        st.experimental_rerun()
+                        st.rerun()
 
 # Fungsi untuk menampilkan halaman manajemen pengguna
 def show_user_management_page():
@@ -976,7 +976,7 @@ def show_user_management_page():
                         if success:
                             st.success(message)
                             # Refresh halaman setelah penghapusan berhasil
-                            st.experimental_rerun()
+                            st.rerun()
                         else:
                             st.error(message)
 
