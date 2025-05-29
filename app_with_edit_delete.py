@@ -109,13 +109,13 @@ def show_sidebar():
             menu = st.radio(
                 "Menu",
                 ["Dashboard", "Aktivitas Pemasaran", "Follow-up", "Manajemen Pengguna", "Pengaturan"],
-                key="sidebar_menu"
+                key="sidebar_menu_superadmin" # Unique key
             )
         else:
             menu = st.radio(
                 "Menu",
                 ["Dashboard", "Aktivitas Pemasaran", "Follow-up", "Profil"],
-                key="sidebar_menu"
+                key="sidebar_menu_marketing" # Unique key
             )
 
         st.divider()
