@@ -713,36 +713,36 @@ def show_marketing_activities_page():
                 
                 if activity:
                     st.warning("Perhatian: Menghapus aktivitas pemasaran akan menghapus juga semua follow-up terkait. Tindakan ini tidak dapat dibatalkan.")
-                
+                    
                     st.write("**Detail Aktivitas yang akan dihapus:**")
                     st.write(f"ID: {activity['id']}")
                     st.write(f"Nama Prospek: {activity['prospect_name']}")
                     st.write(f"Lokasi: {activity['prospect_location']}")
                     st.write(f"Jenis Aktivitas: {activity['activity_type']}")
                     st.write(f"Status: {STATUS_MAPPING.get(activity['status'], activity['status'])}")
-                
+                    
                     followups = get_followups_by_activity_id(selected_id)
                     if followups:
                         st.write(f"**Jumlah follow-up terkait yang akan dihapus: {len(followups)}**")
-
+                    
                     confirm = st.checkbox("Saya yakin ingin menghapus aktivitas pemasaran ini beserta semua follow-up terkait")
                     
                     if st.button("Hapus Aktivitas", disabled=not confirm):
                         success, message = delete_marketing_activity(selected_id)
                         
                         if success:
-                         st.success(message)
+                            st.success(message)
                             st.rerun()
                         else:
                             st.error(message)
 
-    def show_followup_page():
+def show_followup_page():
     """Display follow-up management page"""
     st.title("Follow-up")
     
     user = st.session_state.user
     
-        if hasattr(st.session_state, 'add_followup_mode') and st.session_state.add_followup_mode:
+    if hasattr(st.session_state, 'add_followup_mode') and st.session_state.add_followup_mode:
         activity_id = st.session_state.add_followup_activity_id
         activity = get_activity_by_id(activity_id)
         
@@ -811,16 +811,17 @@ def show_marketing_activities_page():
                 st.info("Belum ada data follow-up.")
             else:
                 followups_df = pd.DataFrame(followups)
-    
+                
                 activities = get_all_marketing_activities()
                 activity_to_prospect = {activity['id']: activity['prospect_name'] for activity in activities}
                 followups_df['prospect_name'] = followups_df['activity_id'].map(activity_to_prospect)
-
+                
                 followups_df['next_followup_date'] = pd.to_datetime(followups_df['next_followup_date'])
-                followups_df = followups_df.sort_values('next_followup_date')                
+                followups_df = followups_df.sort_values('next_followup_date')
+                
                 display_columns = ['id', 'activity_id', 'prospect_name', 'marketer_username', 
                                   'followup_date', 'next_followup_date', 'status_update']
-            
+                
                 column_mapping = {
                     'id': 'ID',
                     'activity_id': 'ID Aktivitas',
@@ -830,14 +831,14 @@ def show_marketing_activities_page():
                     'next_followup_date': 'Tanggal Follow-up Berikutnya',
                     'status_update': 'Status'
                 }
-            
+                
                 display_df = followups_df[display_columns].rename(columns=column_mapping)
                 
                 if 'Status' in display_df.columns:
                     display_df['Status'] = display_df['Status'].map(lambda x: STATUS_MAPPING.get(x, x))
-            
+                
                 st.dataframe(display_df, use_container_width=True)
-            
+                
                 st.subheader("Detail Follow-up")
                 selected_id = st.selectbox("Pilih ID Follow-up untuk melihat detail", 
                                           options=followups_df['id'].tolist())
