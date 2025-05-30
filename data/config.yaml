@@ -1,5 +1,5 @@
 app_settings:
-  app_name: AI Suara Marketing Tracker
+  app_name: AI Voice Marketing Tracker
   date_format: '%Y-%m-%d %H:%M:%S'
   theme: light
   version: 1.0.0
