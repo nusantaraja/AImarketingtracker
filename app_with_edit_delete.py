@@ -21,7 +21,7 @@ initialize_database()
 
 # Page configuration
 st.set_page_config(
-    page_title="AI Suara Marketing Tracker",
+    page_title="AI Voice Marketing Tracker",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -105,7 +105,7 @@ def show_login_page():
         <div style="display: flex; justify-content: center; align-items: center; margin-top: 20px; margin-bottom: 20px;">
             <img src="static/img/logo.jpg" style="max-width: 180px; margin: 0 auto;">
         </div>
-        <h1 style="text-align: center; margin-bottom: 30px;">AI Suara Marketing Tracker</h1>
+        <h1 style="text-align: center; margin-bottom: 30px;">AI Voice Marketing Tracker</h1>
     """, unsafe_allow_html=True)
     
     # Login form
@@ -127,7 +127,7 @@ def show_login_page():
         # Footer
         st.markdown("""
             <div style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: #6c757d;">
-                © 2025 AI Suara Marketing Tracker
+                © 2025 AI Voice Marketing Tracker
             </div>
         """, unsafe_allow_html=True)
 
@@ -1070,7 +1070,7 @@ def show_settings_page():
         
         # Form pengaturan
         with st.form("settings_form"):
-            app_name = st.text_input("Nama Aplikasi", config.get('app_name', 'AI Suara Marketing Tracker'))
+            app_name = st.text_input("Nama Aplikasi", config.get('app_name', 'AI Voice Marketing Tracker'))
             company_name = st.text_input("Nama Perusahaan", config.get('company_name', 'AI Suara'))
             
             submitted = st.form_submit_button("Simpan Pengaturan", use_container_width=True)
